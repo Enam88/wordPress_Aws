@@ -3,6 +3,8 @@ from aws_cdk import Stack, App
 from constructs import Construct
 from lib.constructs.vpc import CustomVPC
 from lib.constructs.sg import WordpressSecurityGroups
+from lib.constructs.bastion import BastionHostConstruct
+
 
 
 class WordpressAwsStack(Stack):
@@ -14,7 +16,17 @@ class WordpressAwsStack(Stack):
         custom_vpc = CustomVPC(self, "MyCustomVPC")
 
         # Instantiate the WordPressSecurityGroups construct
-        wp_sg = WordpressSecurityGroups(self, "WordPressSecurityGroups", vpc=custom_vpc.vpc)
+        wordpress_sg = WordpressSecurityGroups(self, "WordPressSecurityGroups", vpc=custom_vpc.vpc)
+
+        # Use the bastion security group from wordpress_sg construct
+        bastion_host = BastionHostConstruct(
+            self,
+            "BastionHost",
+            vpc=custom_vpc.vpc,
+            bastion_sg=wordpress_sg.bastion_sg,  # Reference to the security group
+            key_name="demo-keypair"
+        )
+
 
 
 
