@@ -13,11 +13,14 @@ class BastionHostConstruct(Construct):
         super().__init__(scope, id, **kwargs)
 
 
+        key_pair_name = "demo-keypair"
+
+
         region_map = CfnMapping(
             self,
             "RegionMap",
             mapping={
-                "eu-west-3": {"AMI": ""},
+                "eu-west-3": {"AMI": "ami-06e7d9bed6ecdc388"},
                 # Add other regions as needed
             }
         )
@@ -46,7 +49,7 @@ class BastionHostConstruct(Construct):
             image_id=region_map.find_in_map(Fn.ref("AWS::Region"), "AMI"),
             instance_type="t2.micro",
             security_groups=[bastion_sg.security_group_id],
-            key_name=key_name,
+            key_name=key_pair_name,
             iam_instance_profile=bastion_instance_profile.ref
         )
 
@@ -54,8 +57,8 @@ class BastionHostConstruct(Construct):
         bastion_asg = autoscaling.CfnAutoScalingGroup(
             self,
             "BastionAutoScalingGroup",
-            min_size=0,
-            max_size=1,
+            min_size='0',
+            max_size='1',
             launch_configuration_name=bastion_lc.ref,
             vpc_zone_identifier=[subnet.subnet_id for subnet in vpc.public_subnets],
             tags=[autoscaling.CfnAutoScalingGroup.TagPropertyProperty(
