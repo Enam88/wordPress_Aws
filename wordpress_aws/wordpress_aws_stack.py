@@ -1,9 +1,12 @@
+#Wordpress_aws_stack.py
 import aws_cdk as cdk
 from aws_cdk import Stack, App
 from constructs import Construct
 from lib.constructs.vpc import CustomVPC
 from lib.constructs.sg import WordpressSecurityGroups
 from lib.constructs.bastion import BastionHostConstruct
+from lib.constructs.efs_construct import EfsConstruct
+
 
 
 
@@ -26,6 +29,11 @@ class WordpressAwsStack(Stack):
             bastion_sg=wordpress_sg.bastion_sg,  # Reference to the security group
             key_name="demo-keypair"
         )
+
+        #Instantiate EFS Construct
+
+        efs_construct = EfsConstruct(self, "MyEfsConstruct", vpc=custom_vpc.vpc, efs_sg=wordpress_sg.efs_sg)
+
 
 
 
