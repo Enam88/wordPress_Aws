@@ -6,6 +6,10 @@ from lib.constructs.vpc import CustomVPC
 from lib.constructs.sg import WordpressSecurityGroups
 from lib.constructs.bastion import BastionHostConstruct
 from lib.constructs.efs_construct import EfsConstruct
+# Add this import to your existing imports
+from lib.constructs.efs_alarms import EfsAlarmsConstruct
+from lib.constructs.elasticache import ElastiCacheConstruct
+
 
 
 
@@ -33,6 +37,21 @@ class WordpressAwsStack(Stack):
         #Instantiate EFS Construct
 
         efs_construct = EfsConstruct(self, "MyEfsConstruct", vpc=custom_vpc.vpc, efs_sg=wordpress_sg.efs_sg)
+
+
+        # Instantiate EfsAlarmsConstruct
+        # Replace 'your-email@example.com' with the actual email address you want to use for notifications
+        efs_alarms = EfsAlarmsConstruct(self, "MyEfsAlarms",
+                                        file_system=efs_construct.efs_file_system,
+                                        email_address="your-email@example.com")
+        
+        # Instantiate ElastiCache Construct with the ElastiCache Security Group
+        elasticache_construct = ElastiCacheConstruct(self, "MyElastiCacheConstruct",
+            vpc=custom_vpc.vpc, 
+            cache_security_group=wordpress_sg.elasticache_sg
+        )
+
+#)
 
 
 
