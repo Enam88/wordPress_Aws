@@ -9,6 +9,8 @@ from lib.constructs.efs_construct import EfsConstruct
 from lib.constructs.efs_alarms import EfsAlarmsConstruct
 from lib.constructs.elasticache import ElastiCacheConstruct
 from lib.constructs.alb import ALBConstruct  # Make sure to import ALBConstruct
+from lib.constructs.rds import RdsMysqlConstruct
+
 
 
 
@@ -61,8 +63,9 @@ class WordpressAwsStack(Stack):
             public_alb_sg=wordpress_sg.public_alb_sg,
             # ssl_certificate_arn="arn:aws:acm:region:account-id:certificate/certificate-id"  # Optional, provide your SSL certificate ARN here
         )
+        # Instantiate RdsMysqlConstruct
+        rds_mysql_construct = RdsMysqlConstruct(self, "MyRdsMysqlConstruct", vpc=custom_vpc.vpc, db_security_group=wordpress_sg.db_sg)
 
-#)
 
 
 
