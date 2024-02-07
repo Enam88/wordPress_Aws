@@ -6,9 +6,10 @@ from lib.constructs.vpc import CustomVPC
 from lib.constructs.sg import WordpressSecurityGroups
 from lib.constructs.bastion import BastionHostConstruct
 from lib.constructs.efs_construct import EfsConstruct
-# Add this import to your existing imports
 from lib.constructs.efs_alarms import EfsAlarmsConstruct
 from lib.constructs.elasticache import ElastiCacheConstruct
+from lib.constructs.alb import ALBConstruct  # Make sure to import ALBConstruct
+
 
 
 
@@ -49,6 +50,16 @@ class WordpressAwsStack(Stack):
         elasticache_construct = ElastiCacheConstruct(self, "MyElastiCacheConstruct",
             vpc=custom_vpc.vpc, 
             cache_security_group=wordpress_sg.elasticache_sg
+        )
+
+        
+        # Instantiate ALBConstruct with the VPC and ALB security group
+        alb_construct = ALBConstruct(
+            self,
+            "MyALBConstruct",
+            vpc=custom_vpc.vpc,
+            public_alb_sg=wordpress_sg.public_alb_sg,
+            # ssl_certificate_arn="arn:aws:acm:region:account-id:certificate/certificate-id"  # Optional, provide your SSL certificate ARN here
         )
 
 #)
