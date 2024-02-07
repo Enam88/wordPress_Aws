@@ -10,6 +10,8 @@ from lib.constructs.efs_alarms import EfsAlarmsConstruct
 from lib.constructs.elasticache import ElastiCacheConstruct
 from lib.constructs.alb import ALBConstruct  # Make sure to import ALBConstruct
 from lib.constructs.rds import RdsMysqlConstruct
+from lib.constructs.webserver import WordPressWebServerConstruct
+
 
 
 
@@ -27,6 +29,18 @@ class WordpressAwsStack(Stack):
 
         # Instantiate the WordPressSecurityGroups construct
         wordpress_sg = WordpressSecurityGroups(self, "WordPressSecurityGroups", vpc=custom_vpc.vpc)
+
+        # SSL Certificate ARN - Update this with your actual certificate ARN if you have one
+        # ssl_certificate_arn = "arn:aws:acm:your-region:your-account-id:certificate/your-certificate-id"  # Optional
+
+        # Instantiate ALBConstruct with the VPC and ALB security group, and optionally, SSL certificate ARN
+        alb_construct = ALBConstruct(
+            self,
+            "MyALBConstruct",
+            vpc=custom_vpc.vpc,
+            public_alb_sg=wordpress_sg.public_alb_sg,
+            # ssl_certificate_arn=ssl_certificate_arn  # Pass this only if you have an SSL certificate
+        )
 
         # Use the bastion security group from wordpress_sg construct
         bastion_host = BastionHostConstruct(
@@ -55,16 +69,24 @@ class WordpressAwsStack(Stack):
         )
 
         
-        # Instantiate ALBConstruct with the VPC and ALB security group
-        alb_construct = ALBConstruct(
-            self,
-            "MyALBConstruct",
-            vpc=custom_vpc.vpc,
-            public_alb_sg=wordpress_sg.public_alb_sg,
-            # ssl_certificate_arn="arn:aws:acm:region:account-id:certificate/certificate-id"  # Optional, provide your SSL certificate ARN here
-        )
+
         # Instantiate RdsMysqlConstruct
         rds_mysql_construct = RdsMysqlConstruct(self, "MyRdsMysqlConstruct", vpc=custom_vpc.vpc, db_security_group=wordpress_sg.db_sg)
+
+        
+        # Instantiate the WordPressWebServerConstruct
+
+        # Instantiate WordPressWebServerConstruct
+        # Assuming EFS and other required parameters are correctly set up
+        wordpress_web_server = WordPressWebServerConstruct(
+            self,
+            "WordPressWebServer",
+            vpc=custom_vpc.vpc,
+            web_sg=wordpress_sg.web_sg,  # Make sure this SG allows traffic from the ALB
+            efs_file_system=efs_construct.efs_file_system,  # Assuming your EFS construct is named `efs_construct`
+            alb_target_group=alb_construct.alb_target_group
+        )
+
 
 
 
