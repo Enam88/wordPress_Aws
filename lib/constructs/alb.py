@@ -1,7 +1,8 @@
 from aws_cdk import (
     aws_elasticloadbalancingv2 as elbv2,
     aws_ec2 as ec2,
-    aws_certificatemanager as acm
+    aws_certificatemanager as acm,
+    CfnOutput
 )
 from constructs import Construct
 import aws_cdk as cdk
@@ -46,3 +47,7 @@ class ALBConstruct(Construct):
             self.https_listener = self.lb.add_listener("HttpsListener", port=443,
                                                         certificates=[certificate], 
                                                         default_action=elbv2.ListenerAction.forward([self.alb_target_group]))
+            
+
+        # Output the DNS name of the ALB
+        CfnOutput(self, "ALBDnsName", value=self.lb.load_balancer_dns_name, description="The DNS name of the ALB")
