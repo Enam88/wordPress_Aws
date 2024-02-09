@@ -57,8 +57,9 @@ class BastionHostConstruct(Construct):
         bastion_asg = autoscaling.CfnAutoScalingGroup(
             self,
             "BastionAutoScalingGroup",
-            min_size='0',
+            min_size='1',
             max_size='1',
+            desired_capacity='1',  # Optionally add this line to explicitly set desired capacity
             launch_configuration_name=bastion_lc.ref,
             vpc_zone_identifier=[subnet.subnet_id for subnet in vpc.public_subnets],
             tags=[autoscaling.CfnAutoScalingGroup.TagPropertyProperty(
